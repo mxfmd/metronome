@@ -8,24 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -36,24 +19,24 @@ import javax.swing.event.ChangeListener;
  * 
  *
  */
-@SuppressWarnings("serial")
+//@SuppressWarnings("serial")
 public class MetronomeApp extends JFrame {
 
-	private MetronomeModel model;
+	private Metronome metronome;
 
 	// Swing variables
 	private JSpinner spinnerBPM, spinnerBeat;
 	private JButton startButton;
 	private JRadioButton[] valueButtons;
-	private ButtonGroup valueGroop;
+	private ButtonGroup valueGroup;
 
 	public final String[] values = { "quarters", "eighths", "tripple-eighths",
 			"sixteenths", "eighth-dot-sixteenth", "eighth-two-sixteenths",
 			"two-sixteenths-eight" };
 
-	public MetronomeApp(MetronomeModel model) {
+	public MetronomeApp(Metronome metronome) {
 		super("Metronome");
-		this.model = model;
+		this.metronome = metronome;
 		initSwingComponents();
 		initListeners();
 	}
@@ -79,19 +62,19 @@ public class MetronomeApp extends JFrame {
 		JLabel labelBeat = new JLabel("Beat:", SwingConstants.RIGHT);
 		upperPanel.add(labelBeat);
 
-		SpinnerModel spinnerModelBeat = new SpinnerNumberModel(model.getBeat(),
+		SpinnerModel spinnerModelBeat = new SpinnerNumberModel(metronome.getBeat(),
 				0, 9, 1);
 		spinnerBeat = new JSpinner(spinnerModelBeat);
 		upperPanel.add(spinnerBeat);
 		mainPanel.add(upperPanel, BorderLayout.NORTH);
 
-		valueGroop = new ButtonGroup();
+		valueGroup = new ButtonGroup();
 		JPanel panelValue = new JPanel(new GridLayout(2, 4));
 		panelValue.setBorder(BorderFactory.createTitledBorder("Value"));
 		valueButtons = new JRadioButton[values.length];
 
 		for (int i = 0; i < values.length; i++) {
-			valueButtons[i] = new JRadioButton("", i == 0 ? true : false);
+			valueButtons[i] = new JRadioButton("", i == 0);
 			Icon icon = new ImageIcon(MetronomeApp.class.getResource("/resources/"
 					+ values[i] + ".png"));
 			JLabel label = new JLabel(icon);
@@ -99,7 +82,7 @@ public class MetronomeApp extends JFrame {
 			panel.add(valueButtons[i]);
 			panel.add(label);
 			panelValue.add(panel);
-			valueGroop.add(valueButtons[i]);
+			valueGroup.add(valueButtons[i]);
 		}
 
 		mainPanel.add(panelValue, BorderLayout.CENTER);
@@ -109,34 +92,22 @@ public class MetronomeApp extends JFrame {
 		mainPanel.add(startButton, BorderLayout.SOUTH);
 		getContentPane().add(mainPanel);
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setResizable(false);
 		setLocationRelativeTo(null); // place in the middle of the screen
 		pack();
-	}
-
-	// GETTERS
-
-	public int getBeat() {
-		return (int) spinnerBeat.getValue();
 	}
 
 	public int getBPM() {
 		return (int) spinnerBPM.getValue();
 	}
 
-	public String getValue() {
-		return valueGroop.getSelection().getActionCommand();
-	}
-
-	// LISTENERS
-
 	private void initListeners() {
 		spinnerBPM.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				model.setBPM(getBPM());
+				metronome.setBPM(getBPM());
 			}
 
 		});
@@ -147,7 +118,7 @@ public class MetronomeApp extends JFrame {
 			public void stateChanged(ChangeEvent e) {
 				int beat = (int) spinnerBeat.getValue();
 				try {
-					model.setBeat(beat);
+					metronome.setBeat(beat);
 				} catch (InvalidMidiDataException e1) {
 					showErrorMessageAndExit(e1);
 				}
@@ -164,14 +135,14 @@ public class MetronomeApp extends JFrame {
 				case "Start":
 					startButton.setText("Stop");
 					try {
-						model.startBeat();
+						metronome.startBeat();
 					} catch (InvalidMidiDataException e1) {
 						showErrorMessageAndExit(e1);
 					}
 					break;
 				case "Stop":
 					startButton.setText("Start");
-					model.stopBeat();
+					metronome.stopBeat();
 					break;
 				}
 
@@ -185,7 +156,7 @@ public class MetronomeApp extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String value = e.getActionCommand();
 				try {
-					model.setValue(value);
+					metronome.setValue(value);
 				} catch (InvalidMidiDataException e1) {
 					showErrorMessageAndExit(e1);
 				}
@@ -229,12 +200,12 @@ public class MetronomeApp extends JFrame {
 	public static void main(String[] args) {
 
 		try {
-			final MetronomeModel model = new MetronomeModel();
+			final Metronome metronome = new Metronome();
 			SwingUtilities.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
-					MetronomeApp demo = new MetronomeApp(model);
+					MetronomeApp demo = new MetronomeApp(metronome);
 					demo.setVisible(true);
 				}
 			});
@@ -243,6 +214,5 @@ public class MetronomeApp extends JFrame {
 					+ "\n The program will be closed.");
 			System.exit(1);
 		}
-
 	}
 }
