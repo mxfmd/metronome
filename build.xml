@@ -27,7 +27,7 @@
  
 		<jar jarfile="${dist.dir}/${projectName}-${DSTAMP}.jar" basedir="${build.dir}" >
 		    <manifest>
-			<attribute name="Main-Class" value="com.example.metronome.MetronomeApp" />
+			<attribute name="Main-Class" value="me.dolia.metronome.MetronomeApp" />
 		    </manifest>
 		</jar>
 	</target>

@@ -1,4 +1,4 @@
-package com.example.metronome;
+package me.dolia.metronome;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;

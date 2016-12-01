@@ -1,4 +1,4 @@
-package com.example.metronome;
+package me.dolia.metronome;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
