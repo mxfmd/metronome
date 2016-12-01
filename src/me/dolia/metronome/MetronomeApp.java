@@ -21,10 +21,6 @@ public class MetronomeApp extends JFrame {
     private JButton startButton;
     private JRadioButton[] valueButtons;
 
-    private final String[] values = {"quarters", "eighths", "triple-eighths",
-            "sixteenths", "eighth-dot-sixteenth", "eighth-two-sixteenths",
-            "two-sixteenths-eight"};
-
     public MetronomeApp(Metronome metronome) {
         super("Metronome");
         this.metronome = metronome;
@@ -62,12 +58,12 @@ public class MetronomeApp extends JFrame {
         ButtonGroup valueGroup = new ButtonGroup();
         JPanel panelValue = new JPanel(new GridLayout(2, 4));
         panelValue.setBorder(BorderFactory.createTitledBorder("Value"));
-        valueButtons = new JRadioButton[values.length];
+        valueButtons = new JRadioButton[RhythmicPattern.values().length];
 
-        for (int i = 0; i < values.length; i++) {
+        for (int i = 0; i < RhythmicPattern.values().length; i++) {
             valueButtons[i] = new JRadioButton("", i == 0);
             Icon icon = new ImageIcon(MetronomeApp.class.getResource("/resources/"
-                    + values[i] + ".png"));
+                    + RhythmicPattern.values()[i].name().toLowerCase() + ".png"));
             JLabel label = new JLabel(icon);
             JPanel panel = new JPanel(new FlowLayout());
             panel.add(valueButtons[i]);
@@ -112,14 +108,14 @@ public class MetronomeApp extends JFrame {
                 case "Start":
                     startButton.setText("Stop");
                     try {
-                        metronome.startBeat();
+                        metronome.play();
                     } catch (InvalidMidiDataException e1) {
                         showErrorMessageAndExit(e1);
                     }
                     break;
                 case "Stop":
                     startButton.setText("Start");
-                    metronome.stopBeat();
+                    metronome.stop();
                     break;
             }
 
@@ -128,14 +124,14 @@ public class MetronomeApp extends JFrame {
         ActionListener valueButtonsListener = e -> {
             String value = e.getActionCommand();
             try {
-                metronome.setValue(value);
+                metronome.setPattern(RhythmicPattern.valueOf(value));
             } catch (InvalidMidiDataException e1) {
                 showErrorMessageAndExit(e1);
             }
         };
 
         for (int i = 0; i < valueButtons.length; i++) {
-            valueButtons[i].setActionCommand(values[i]);
+            valueButtons[i].setActionCommand(RhythmicPattern.values()[i].name());
             valueButtons[i].addActionListener(valueButtonsListener);
         }
     }

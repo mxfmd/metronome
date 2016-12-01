@@ -21,14 +21,14 @@ public class Metronome {
     // 2 - eight notes;
     // 3 - sixteenth notes
     // 4 - eight notes in triples
-    // If you change this value you must change the track list arrays into
+    // If you change this pattern you must change the track list arrays into
     // createAndSetTrack method!
     private static final int RESOLUTION = 12;
 
     // main parameters
     private int bpm = 120;
     private int beat = 4;
-    private String value = "quarters";
+    private RhythmicPattern pattern = RhythmicPattern.QUARTERS;
 
     // if main parameters have changed, then this assign true
     private boolean changed;
@@ -50,7 +50,7 @@ public class Metronome {
         track = sequence.createTrack();
         this.sequencer.setSequence(sequence);
         this.sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
-        createAndSetTrack(beat, value);
+        createAndSetTrack(beat, pattern);
     }
 
     void setBPM(int bpm) {
@@ -72,80 +72,43 @@ public class Metronome {
         this.beat = beat;
         changed = true;
         if (sequencer.isRunning()) {
-            startBeat();
+            play();
         }
     }
 
-    void setValue(String value) throws InvalidMidiDataException {
-        this.value = value;
+    void setPattern(RhythmicPattern pattern) throws InvalidMidiDataException {
+        this.pattern = pattern;
         changed = true;
         if (sequencer.isRunning()) {
-            startBeat();
+            play();
         }
     }
 
-    void startBeat() throws InvalidMidiDataException {
+    public void play() throws InvalidMidiDataException {
         if (changed) {
             sequence.deleteTrack(track);        // delete previous track
             track = sequence.createTrack();
-            createAndSetTrack(beat, value);
+            createAndSetTrack(beat, pattern);
             sequencer.setSequence(sequence);
         }
         setBPM(bpm);
         sequencer.start();
     }
 
-    void stopBeat() {
+    public void stop() {
         sequencer.stop();
         sequencer.setMicrosecondPosition(0); // reset sequencer
     }
 
-    private void createAndSetTrack(int beat, String value)
+    private void createAndSetTrack(int beat, RhythmicPattern pattern)
             throws InvalidMidiDataException {
 
         int typNote = 36;    // "typical" note
         int loudNote = 44;    // first note of sequence
 
-        int[] QUARTERS_TRACK_LIST = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        int[] EIGHTS_TRACK_LIST = {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0};
-        int[] TRIPLE_EIGHTS_TRACK_LIST = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
-        int[] SIXTEENTHS_TRACK_LIST = {1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0};
-        int[] EIGHT_DOT_SIXTEENTH_TRACK_LIST = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                0, 0};
-        int[] EIGHT_TWO_SIXTEENTHS_TRACK_LIST = {1, 0, 0, 0, 0, 0, 1, 0, 0, 1,
-                0, 0};
-        int[] TWO_SIXTEENTHS_EIGHT_TRACK_LIST = {1, 0, 0, 1, 0, 0, 1, 0, 0, 0,
-                0, 0};
+        int[] template = pattern.template;    // sort of "schema" for building sequence
 
-        int[] template;    // sort of "schema" for building sequence
-
-        switch (value) {
-            case "quarters":
-                template = QUARTERS_TRACK_LIST;
-                break;
-            case "eighths":
-                template = EIGHTS_TRACK_LIST;
-                break;
-            case "triple-eighths":
-                template = TRIPLE_EIGHTS_TRACK_LIST;
-                break;
-            case "sixteenths":
-                template = SIXTEENTHS_TRACK_LIST;
-                break;
-            case "eighth-dot-sixteenth":
-                template = EIGHT_DOT_SIXTEENTH_TRACK_LIST;
-                break;
-            case "eighth-two-sixteenths":
-                template = EIGHT_TWO_SIXTEENTHS_TRACK_LIST;
-                break;
-            case "two-sixteenths-eight":
-                template = TWO_SIXTEENTHS_EIGHT_TRACK_LIST;
-                break;
-            default:
-                throw new RuntimeException("Unrecognized rhythm template.");
-        }
-
-        // creates the whole sample, which represents notes for "value", played "beat" times
+        // creates the whole sample, which represents notes for "pattern", played "beat" times
         int sampleLengthInTicks = beat > 0 ? template.length * beat : RESOLUTION;
         int[] sample = new int[sampleLengthInTicks];
         for (int i = 0; i < sample.length; i++) {
