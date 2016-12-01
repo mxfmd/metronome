@@ -24,6 +24,8 @@ public class Metronome {
     // If you change this pattern you must change the track list arrays into
     // createAndSetTrack method!
     private static final int RESOLUTION = 12;
+    private static final int LOUD_NOTE = 44;
+    private static final int QUIET_NOTE = 36;
 
     // main parameters
     private int bpm = 120;
@@ -103,9 +105,6 @@ public class Metronome {
     private void createAndSetTrack(int beat, RhythmicPattern pattern)
             throws InvalidMidiDataException {
 
-        int typNote = 36;    // "typical" note
-        int loudNote = 44;    // first note of sequence
-
         int[] template = pattern.template;    // sort of "schema" for building sequence
 
         // creates the whole sample, which represents notes for "pattern", played "beat" times
@@ -117,7 +116,7 @@ public class Metronome {
 
         // now create and add the necessary midi events to track
         for (int j = 0; j < sample.length; j++) {
-            int note = j == 0 && beat > 0 ? loudNote : typNote;    //if the note is first in sequence, then it is loud note.
+            int note = j == 0 && beat > 0 ? LOUD_NOTE : QUIET_NOTE;    //if the note is first in sequence, then it is loud note.
             int velocity = j % RESOLUTION == 0 ? 127 : 90;        //if the note is the first in sequence, then velocity is max
 
             if (sample[j] != 0) {
