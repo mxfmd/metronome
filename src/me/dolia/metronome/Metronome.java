@@ -39,17 +39,21 @@ public class Metronome {
     private Track track;
 
     public Metronome() throws MidiUnavailableException, InvalidMidiDataException {
-        sequencer = MidiSystem.getSequencer();
-        sequencer.open();
-        sequencer.setTempoInBPM(bpm);
+        this(MidiSystem.getSequencer());
+    }
+
+    public Metronome(Sequencer sequencer) throws MidiUnavailableException, InvalidMidiDataException {
+        this.sequencer = sequencer;
+        this.sequencer.open();
+        this.sequencer.setTempoInBPM(bpm);
         sequence = new Sequence(Sequence.PPQ, RESOLUTION);
         track = sequence.createTrack();
-        sequencer.setSequence(sequence);
-        sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
+        this.sequencer.setSequence(sequence);
+        this.sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
         createAndSetTrack(beat, value);
     }
 
-    public void setBPM(int bpm) {
+    void setBPM(int bpm) {
         this.bpm = bpm;
 
         // Due to the bug in java machine (see http://www.jsresources.org/faq_midi.html#tempo_looping),
@@ -60,11 +64,11 @@ public class Metronome {
         sequencer.setTempoFactor(fFactor);
     }
 
-    public int getBeat() {
+    int getBeat() {
         return beat;
     }
 
-    public void setBeat(int beat) throws InvalidMidiDataException {
+    void setBeat(int beat) throws InvalidMidiDataException {
         this.beat = beat;
         changed = true;
         if (sequencer.isRunning()) {
@@ -72,7 +76,7 @@ public class Metronome {
         }
     }
 
-    public void setValue(String value) throws InvalidMidiDataException {
+    void setValue(String value) throws InvalidMidiDataException {
         this.value = value;
         changed = true;
         if (sequencer.isRunning()) {
@@ -80,7 +84,7 @@ public class Metronome {
         }
     }
 
-    public void startBeat() throws InvalidMidiDataException {
+    void startBeat() throws InvalidMidiDataException {
         if (changed) {
             sequence.deleteTrack(track);        // delete previous track
             track = sequence.createTrack();
@@ -91,7 +95,7 @@ public class Metronome {
         sequencer.start();
     }
 
-    public void stopBeat() {
+    void stopBeat() {
         sequencer.stop();
         sequencer.setMicrosecondPosition(0); // reset sequencer
     }
@@ -138,11 +142,11 @@ public class Metronome {
                 template = TWO_SIXTEENTHS_EIGHT_TRACK_LIST;
                 break;
             default:
-                return;
+                throw new RuntimeException("Unrecognized rhythm template.");
         }
 
         // creates the whole sample, which represents notes for "value", played "beat" times
-        int sampleLengthInTicks = beat > 0 ? template.length * beat  : RESOLUTION;
+        int sampleLengthInTicks = beat > 0 ? template.length * beat : RESOLUTION;
         int[] sample = new int[sampleLengthInTicks];
         for (int i = 0; i < sample.length; i++) {
             sample[i] = template[i % template.length];
@@ -155,7 +159,7 @@ public class Metronome {
 
             if (sample[j] != 0) {
                 track.add(makeEvent(ShortMessage.NOTE_ON, 9, note, velocity, j));
-                track.add(makeEvent(ShortMessage.NOTE_OFF, 9, note, velocity,j + 1));
+                track.add(makeEvent(ShortMessage.NOTE_OFF, 9, note, velocity, j + 1));
             }
         }
 
