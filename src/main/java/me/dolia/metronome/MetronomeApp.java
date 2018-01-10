@@ -1,9 +1,11 @@
 package me.dolia.metronome;
 
+import static javax.swing.BorderFactory.createEmptyBorder;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-import javax.sound.midi.InvalidMidiDataException;
+import java.util.ResourceBundle;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.swing.*;
@@ -14,6 +16,8 @@ import javax.swing.*;
  * @author Maksym Dolia
  */
 public class MetronomeApp extends JFrame {
+
+  private ResourceBundle messages = ResourceBundle.getBundle("messages");
 
   private static final String START = "Start";
 
@@ -36,13 +40,12 @@ public class MetronomeApp extends JFrame {
 
     initMenu();
 
-    JPanel mainPanel = new JPanel(new BorderLayout());
-    mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    JPanel mainPanel = createMainPanel();
 
     // panel with spinners
     // add spinner for bpm control
     JPanel upperPanel = new JPanel(new GridLayout(1, 4, 5, 5));
-    upperPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+    upperPanel.setBorder(createEmptyBorder(0, 0, 5, 0));
     JLabel labelBPM = new JLabel("Tempo in BPM:", SwingConstants.RIGHT);
     upperPanel.add(labelBPM);
 
@@ -87,6 +90,12 @@ public class MetronomeApp extends JFrame {
     setResizable(false);
     setLocationRelativeTo(null); // place in the middle of the screen
     pack();
+  }
+
+  private JPanel createMainPanel() {
+    JPanel mainPanel = new JPanel(new BorderLayout());
+    mainPanel.setBorder(createEmptyBorder(10, 10, 10, 10));
+    return mainPanel;
   }
 
   private int getBPM() {
@@ -143,7 +152,7 @@ public class MetronomeApp extends JFrame {
     JMenu infoMenu = new JMenu("Info");
     final JMenuItem aboutItem = new JMenuItem("About");
     aboutItem.addActionListener(e -> {
-      String text = "Hi!\nWelcome to the metronome app. \nI wrote this program for fun, and I hope you will enjoy it as well. \n\nCheers,\nMaks \n\nmaksym (dot) dolia (at) gmail (dot) com";
+      String text = messages.getString("menu.about.info");
       JOptionPane.showMessageDialog(null, text, aboutItem.getText(),
           JOptionPane.INFORMATION_MESSAGE);
     });
@@ -154,7 +163,7 @@ public class MetronomeApp extends JFrame {
   }
 
   private void showErrorMessageAndExit(Exception e) {
-    String errorMessage = "Error occured: " + e.getMessage()
+    String errorMessage = "Error occurred: " + e.getMessage()
         + "\nSystem will be closed.";
     JOptionPane.showMessageDialog(null, errorMessage, "Error",
         JOptionPane.ERROR_MESSAGE);
