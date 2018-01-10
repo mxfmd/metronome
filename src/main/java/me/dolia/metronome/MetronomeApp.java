@@ -62,8 +62,7 @@ public class MetronomeApp extends JFrame {
 
         for (int i = 0; i < RhythmicPattern.values().length; i++) {
             valueButtons[i] = new JRadioButton("", i == 0);
-            Icon icon = new ImageIcon(MetronomeApp.class.getResource("/resources/"
-                    + RhythmicPattern.values()[i].name().toLowerCase() + ".png"));
+            Icon icon = new ImageIcon(MetronomeApp.class.getResource("/" + RhythmicPattern.values()[i].name().toLowerCase() + ".png"));
             JLabel label = new JLabel(icon);
             JPanel panel = new JPanel(new FlowLayout());
             panel.add(valueButtons[i]);
