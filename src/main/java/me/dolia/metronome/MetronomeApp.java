@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.swing.*;
 
@@ -98,7 +99,7 @@ public class MetronomeApp extends JFrame {
             int beat = (int) spinnerBeat.getValue();
             try {
                 metronome.setBeat(beat);
-            } catch (InvalidMidiDataException e1) {
+            } catch (MetronomeException e1) {
                 showErrorMessageAndExit(e1);
             }
         });
@@ -110,7 +111,7 @@ public class MetronomeApp extends JFrame {
                 startButton.setText("Stop");
                 try {
                     metronome.play();
-                } catch (InvalidMidiDataException e1) {
+                } catch (MetronomeException e1) {
                     showErrorMessageAndExit(e1);
                 }
             } else if ("Stop".equals(command)) {
@@ -124,7 +125,7 @@ public class MetronomeApp extends JFrame {
             String value = e.getActionCommand();
             try {
                 metronome.setPattern(RhythmicPattern.valueOf(value));
-            } catch (InvalidMidiDataException e1) {
+            } catch (MetronomeException e1) {
                 showErrorMessageAndExit(e1);
             }
         };
@@ -160,14 +161,13 @@ public class MetronomeApp extends JFrame {
     }
 
     public static void main(String[] args) {
-
         try {
-            final Metronome metronome = new Metronome();
+            final MIDIMetronome metronome = new MIDIMetronome(MidiSystem.getSequencer());
             SwingUtilities.invokeLater(() -> {
                 MetronomeApp demo = new MetronomeApp(metronome);
                 demo.setVisible(true);
             });
-        } catch (MidiUnavailableException | InvalidMidiDataException e) {
+        } catch (MidiUnavailableException e) {
             System.err.println("Error occurred: " + e.getMessage()
                     + "\n The program will be closed.");
             System.exit(1);
