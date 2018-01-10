@@ -16,13 +16,13 @@ import javax.sound.midi.Track;
  */
 public class Metronome {
 
-    // Resolution set to 12, because this number can be divided by
-    // 1 - quarter notes;
-    // 2 - eight notes;
-    // 3 - sixteenth notes
-    // 4 - eight notes in triples
-    // If you change this pattern you must change the track list arrays into
-    // createAndSetTrack method!
+     /** Resolution set to 12, because this number can be divided by
+      * 1 - quarter notes;
+      * 2 - eight notes;
+      * 3 - sixteenth notes
+      * 4 - eight notes in triples
+      * If you change this pattern you must change the track list arrays into
+      * createAndSetTrack method! */
     private static final int RESOLUTION = 12;
     private static final int LOUD_NOTE = 44;
     private static final int QUIET_NOTE = 36;
@@ -105,7 +105,7 @@ public class Metronome {
     private void createAndSetTrack(int beat, RhythmicPattern pattern)
             throws InvalidMidiDataException {
 
-        int[] template = pattern.template;    // sort of "schema" for building sequence
+        int[] template = pattern.getTemplate();    // sort of "schema" for building sequence
 
         // creates the whole sample, which represents notes for "pattern", played "beat" times
         int sampleLengthInTicks = beat > 0 ? template.length * beat : RESOLUTION;
@@ -131,10 +131,7 @@ public class Metronome {
 
     private MidiEvent makeEvent(int command, int channel, int note,
                                 int velocity, int tick) throws InvalidMidiDataException {
-
-        MidiEvent event;
         ShortMessage message = new ShortMessage(command, channel, note, velocity);
-        event = new MidiEvent(message, tick);
-        return event;
+        return new MidiEvent(message, tick);
     }
 }

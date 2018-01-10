@@ -14,10 +14,13 @@ import javax.swing.*;
  */
 public class MetronomeApp extends JFrame {
 
-    private Metronome metronome;
+    private static final String START = "Start";
+
+    private final transient Metronome metronome;
 
     // Swing variables
-    private JSpinner spinnerBPM, spinnerBeat;
+    private JSpinner spinnerBPM;
+    private JSpinner spinnerBeat;
     private JButton startButton;
     private JRadioButton[] valueButtons;
 
@@ -74,7 +77,7 @@ public class MetronomeApp extends JFrame {
         mainPanel.add(panelValue, BorderLayout.CENTER);
 
         // create button
-        startButton = new JButton("Start");
+        startButton = new JButton(START);
         mainPanel.add(startButton, BorderLayout.SOUTH);
         getContentPane().add(mainPanel);
 
@@ -103,19 +106,16 @@ public class MetronomeApp extends JFrame {
         startButton.addActionListener(e -> {
             String command = e.getActionCommand();
 
-            switch (command) {
-                case "Start":
-                    startButton.setText("Stop");
-                    try {
-                        metronome.play();
-                    } catch (InvalidMidiDataException e1) {
-                        showErrorMessageAndExit(e1);
-                    }
-                    break;
-                case "Stop":
-                    startButton.setText("Start");
-                    metronome.stop();
-                    break;
+            if (START.equals(command)) {
+                startButton.setText("Stop");
+                try {
+                    metronome.play();
+                } catch (InvalidMidiDataException e1) {
+                    showErrorMessageAndExit(e1);
+                }
+            } else if ("Stop".equals(command)) {
+                startButton.setText(START);
+                metronome.stop();
             }
 
         });
@@ -168,7 +168,7 @@ public class MetronomeApp extends JFrame {
                 demo.setVisible(true);
             });
         } catch (MidiUnavailableException | InvalidMidiDataException e) {
-            System.err.println("Error occured: " + e.getMessage()
+            System.err.println("Error occurred: " + e.getMessage()
                     + "\n The program will be closed.");
             System.exit(1);
         }
