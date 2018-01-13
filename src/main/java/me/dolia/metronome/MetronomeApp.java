@@ -1,14 +1,35 @@
 package me.dolia.metronome;
 
 import static javax.swing.BorderFactory.createEmptyBorder;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
-
 import java.util.ResourceBundle;
 import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.swing.*;
+import javax.sound.midi.Sequencer;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 /**
  * Metronome App.
@@ -102,16 +123,31 @@ public class MetronomeApp extends JFrame {
     return (int) spinnerBPM.getValue();
   }
 
+  private static void showErrorMessage(Exception e) {
+    String errorMessage = "Error occurred: " + e.getMessage();
+    showMessageDialog(null, errorMessage, "Error", ERROR_MESSAGE);
+  }
+
+  public static void main(String[] args) {
+    try {
+      Sequencer sequencer = MidiSystem.getSequencer();
+      final Metronome metronome = new MIDIMetronome(sequencer);
+      SwingUtilities.invokeLater(() -> {
+        MetronomeApp demo = new MetronomeApp(metronome);
+        demo.setVisible(true);
+      });
+    } catch (Exception e) {
+      showErrorMessage(e);
+      System.exit(1);
+    }
+  }
+
   private void initListeners() {
     spinnerBPM.addChangeListener(e -> metronome.setBPM(getBPM()));
 
     spinnerBeat.addChangeListener(e -> {
       int beat = (int) spinnerBeat.getValue();
-      try {
-        metronome.setBeat(beat);
-      } catch (MetronomeException e1) {
-        showErrorMessageAndExit(e1);
-      }
+      metronome.setBeat(beat);
     });
 
     startButton.addActionListener(e -> {
@@ -119,11 +155,7 @@ public class MetronomeApp extends JFrame {
 
       if (START.equals(command)) {
         startButton.setText("Stop");
-        try {
-          metronome.play();
-        } catch (MetronomeException e1) {
-          showErrorMessageAndExit(e1);
-        }
+        metronome.play();
       } else if ("Stop".equals(command)) {
         startButton.setText(START);
         metronome.stop();
@@ -133,11 +165,7 @@ public class MetronomeApp extends JFrame {
 
     ActionListener valueButtonsListener = e -> {
       String value = e.getActionCommand();
-      try {
-        metronome.setPattern(RhythmicPattern.valueOf(value));
-      } catch (MetronomeException e1) {
-        showErrorMessageAndExit(e1);
-      }
+      metronome.setPattern(RhythmicPattern.valueOf(value));
     };
 
     for (int i = 0; i < valueButtons.length; i++) {
@@ -153,34 +181,11 @@ public class MetronomeApp extends JFrame {
     final JMenuItem aboutItem = new JMenuItem("About");
     aboutItem.addActionListener(e -> {
       String text = messages.getString("menu.about.info");
-      JOptionPane.showMessageDialog(null, text, aboutItem.getText(),
-          JOptionPane.INFORMATION_MESSAGE);
+      showMessageDialog(null, text, aboutItem.getText(), INFORMATION_MESSAGE);
     });
     infoMenu.add(aboutItem);
     menuBar.add(infoMenu);
 
     setJMenuBar(menuBar);
-  }
-
-  private void showErrorMessageAndExit(Exception e) {
-    String errorMessage = "Error occurred: " + e.getMessage()
-        + "\nSystem will be closed.";
-    JOptionPane.showMessageDialog(null, errorMessage, "Error",
-        JOptionPane.ERROR_MESSAGE);
-    System.exit(1); // exit with error
-  }
-
-  public static void main(String[] args) {
-    try {
-      final MIDIMetronome metronome = new MIDIMetronome(MidiSystem.getSequencer());
-      SwingUtilities.invokeLater(() -> {
-        MetronomeApp demo = new MetronomeApp(metronome);
-        demo.setVisible(true);
-      });
-    } catch (MidiUnavailableException e) {
-      System.err.println("Error occurred: " + e.getMessage()
-          + "\n The program will be closed.");
-      System.exit(1);
-    }
   }
 }
