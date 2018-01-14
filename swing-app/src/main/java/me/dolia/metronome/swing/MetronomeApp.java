@@ -1,4 +1,4 @@
-package me.dolia.metronome;
+package me.dolia.metronome.swing;
 
 import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
@@ -30,6 +30,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import me.dolia.metronome.services.MIDIMetronome;
+import me.dolia.metronome.services.Metronome;
+import me.dolia.metronome.services.RhythmicPattern;
 
 /**
  * Metronome App.

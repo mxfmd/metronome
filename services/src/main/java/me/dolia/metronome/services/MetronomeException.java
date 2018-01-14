@@ -1,4 +1,4 @@
-package me.dolia.metronome;
+package me.dolia.metronome.services;
 
 public class MetronomeException extends RuntimeException {
 
