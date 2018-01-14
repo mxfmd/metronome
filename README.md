@@ -7,13 +7,22 @@ This is a Java Swing based app, which helps musicians with right tempo playing a
 In UNIX
 
 ```
-$ ./mvnw clean package
+$ ./mvnw clean install
 ```
 
 In Windows
 
 ```
-$ mvnw.cmd clean package
+$ mvnw.cmd clean install
+```
+
+## Run:
+
+In UNIX/Windows
+
+```
+$ cd swing-app/target
+$ java -jar swing-app-0.1-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 ## Contact
